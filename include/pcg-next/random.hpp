@@ -121,7 +121,7 @@
  *        bound
  */
 
-#include "pcg_extras.hpp"
+#include "pcg-next/extras.hpp"
 
 namespace pcg_detail {
 

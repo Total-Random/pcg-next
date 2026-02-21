@@ -1,6 +1,6 @@
 #include <iostream>
 #include <iomanip>
-#include "pcg_random.hpp"
+#include "pcg-next/random.hpp"
 
 int main() {
     pcg32 rng(42u); // Seed with 42

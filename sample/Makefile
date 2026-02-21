@@ -33,15 +33,15 @@ posix-binaryoutput: spew use-partytrick
 clean:
 	rm -f *.o $(TARGETS) $(BINARYOUT_TARGETS)
 
-codebook.o: codebook.cpp ../include/pcg_random.hpp \
-  ../include/pcg_extras.hpp ../include/pcg_uint128.hpp
-cppref-sample.o: cppref-sample.cpp ../include/pcg_random.hpp \
-  ../include/pcg_extras.hpp ../include/pcg_uint128.hpp
-make-partytrick.o: make-partytrick.cpp ../include/pcg_random.hpp \
-  ../include/pcg_extras.hpp ../include/pcg_uint128.hpp
-pcg-demo.o: pcg-demo.cpp ../include/pcg_random.hpp \
-  ../include/pcg_extras.hpp ../include/pcg_uint128.hpp
-spew.o: spew.cpp ../include/pcg_random.hpp ../include/pcg_extras.hpp \
-  ../include/pcg_uint128.hpp
-use-partytrick.o: use-partytrick.cpp ../include/pcg_random.hpp \
-  ../include/pcg_extras.hpp ../include/pcg_uint128.hpp
+codebook.o: codebook.cpp ../include/pcg-next/random.hpp \
+  ../include/pcg-next/extras.hpp ../include/pcg-next/uint128.hpp
+cppref-sample.o: cppref-sample.cpp ../include/pcg-next/random.hpp \
+  ../include/pcg-next/extras.hpp ../include/pcg-next/uint128.hpp
+make-partytrick.o: make-partytrick.cpp ../include/pcg-next/random.hpp \
+  ../include/pcg-next/extras.hpp ../include/pcg-next/uint128.hpp
+pcg-demo.o: pcg-demo.cpp ../include/pcg-next/random.hpp \
+  ../include/pcg-next/extras.hpp ../include/pcg-next/uint128.hpp
+spew.o: spew.cpp ../include/pcg-next/random.hpp ../include/pcg-next/extras.hpp \
+  ../include/pcg-next/uint128.hpp
+use-partytrick.o: use-partytrick.cpp ../include/pcg-next/random.hpp \
+  ../include/pcg-next/extras.hpp ../include/pcg-next/uint128.hpp

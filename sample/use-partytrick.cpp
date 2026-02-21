@@ -34,7 +34,7 @@
 
 #include <unistd.h>
 
-#include "pcg_random.hpp"
+#include "pcg-next/random.hpp"
 
 static const char* saved_state = 
  "6364136223846793005 3503324247726078831 6557656048857751321 103238831 "

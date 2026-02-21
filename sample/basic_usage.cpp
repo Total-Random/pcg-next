@@ -1,5 +1,5 @@
 
-#include "pcg_random.hpp"
+#include "pcg-next/random.hpp"
 
 int main()
 {

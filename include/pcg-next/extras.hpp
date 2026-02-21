@@ -84,7 +84,7 @@
     #define PCG_128BIT_CONSTANT(high,low) \
             ((pcg_extras::pcg128_t(high) << 64) + low)
 #else
-    #include "pcg_uint128.hpp"
+    #include "pcg-next/uint128.hpp"
     namespace pcg_extras {
         using pcg128_t = pcg_extras::uint_x4<uint32_t,uint64_t>;
     }

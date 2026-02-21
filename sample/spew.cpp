@@ -34,7 +34,7 @@
 
 #include <unistd.h>             // We use POSIX read/write for binary I/O
 
-#include "pcg_random.hpp"
+#include "pcg-next/random.hpp"
 
 int main()
 {

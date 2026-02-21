@@ -39,7 +39,7 @@ For full details on the theory and performance, visit the [PCG-Random website].
 This is a **header-only** library. To use it, simply add the `include` directory to your project's include path and:
 
 ```cpp
-#include "pcg_random.hpp"
+#include "pcg-next/random.hpp"
 
 // Standard 32-bit PCG generator
 pcg32 rng;

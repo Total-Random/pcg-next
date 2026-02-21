@@ -30,7 +30,7 @@
 #include <numeric>
 #include <random>       // for random_device
 
-#include "pcg_random.hpp"
+#include "pcg-next/random.hpp"
 
 // This code can be compiled with the preprocessor symbol RNG set to the
 // PCG generator you'd like to test.
