@@ -1,19 +1,27 @@
-# PCG Random Number Generation, C++ Edition
+# pcg-next: Modern PCG Random Number Generation
 
-[![Maintenance Status](https://img.shields.io/badge/status-maintained-brightgreen.svg)](https://github.com/Total-Random/pcg-cpp)
-[![CI](https://github.com/Total-Random/pcg-cpp/actions/workflows/ci.yml/badge.svg)](https://github.com/Total-Random/pcg-cpp/actions/workflows/ci.yml)
+[![Maintenance Status](https://img.shields.io/badge/status-active-brightgreen.svg)](https://github.com/Total-Random/pcg-next)
+[![CI](https://github.com/Total-Random/pcg-next/actions/workflows/ci.yml/badge.svg)](https://github.com/Total-Random/pcg-next/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0-blue.svg)](CMakeLists.txt)
+[![Version](https://img.shields.io/badge/version-1.1-blue.svg)](CMakeLists.txt)
 
 [PCG-Random website]: http://www.pcg-random.org
 
-_This is the **maintained** version of the PCG C++ library, hosted by the **Total-Random** organization. We have taken over maintenance to ensure this statistically excellent family of random number generators continues to work seamlessly on modern systems and compilers._
+**pcg-next** is the modernized, forward-looking branch of the PCG C++ library, hosted by the **Total-Random** organization.
 
-## Why this fork?
+## Why pcg-next?
 
-The original repository by Melissa O'Neill (`imneme/pcg-cpp`) has been a cornerstone of the C++ ecosystem but hasn't seen updates in several years. **Total-Random** exists to keep such vital legacy libraries alive by integrating community fixes, supporting new architectures, and fixing build breakages on modern IDEs.
+This project is a fork of [Total-Random/pcg-cpp](https://github.com/Total-Random/pcg-cpp).
 
-### Key Improvements and Integrated Fixes:
+The main `pcg-cpp` branch is dedicated to maintaining strict compatibility with the original repository by Melissa O'Neill (`imneme/pcg-cpp`). This constraint prevents us from making large-scale improvements to the directory structure or naming conventions.
+
+**pcg-next** was created to break those chains. It is where we implement:
+
+- **Namespaced Headers**: Cleanly organized under `pcg-next/` to avoid naming collisions.
+- **Simplified Naming**: Removal of redundant prefixes (e.g., `pcg_random.hpp` ⮕ `random.hpp`).
+- **Modern Standards**: Faster adoption of modern C++ features and build system improvements.
+
+### Key Improvements Integrated:
 
 - **Windows ARM64 Support**: Integrated native support for MSVC on ARM64 architectures (Surface Pro, Apple Silicon via VM, etc.) using `__umulh` intrinsics.
 - **Improved MSVC Compatibility**: Fixed ambiguous operator errors (`C2678`) in `set_stream` and `operator>>`.
@@ -21,12 +29,6 @@ The original repository by Melissa O'Neill (`imneme/pcg-cpp`) has been a corners
 - **Consistent Typing**: Unified integer type handling across different platforms to avoid compiler warnings and errors.
 
 Detailed information about integrated community fixes and contributors can be found in [CREDITS.md](CREDITS.md).
-
-## Notable Users
-
-This library is used in several high-profile projects, including:
-
-- **[SLiM](https://github.com/MesserLab/SLiM)**: A genetically explicit forward simulation software package for population genetics and evolutionary biology.
 
 ## About PCG
 
