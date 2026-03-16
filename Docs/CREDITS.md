@@ -87,3 +87,4 @@ We are especially grateful to:
 
 - **Ben Haller** ([bhaller](https://github.com/bhaller)) for his early support, encouragement, and understanding during the initial phases of this fork.
 - **david-fong** ([david-fong](https://github.com/david-fong)) for valuable feedback on the CMake build system.
+- **Robert Roessler** ([robertroessler](https://github.com/robertroessler)) for suggesting the use of C++20 bit functions (via [Discussion #5](https://github.com/orgs/Total-Random/discussions/5)), implemented by **Aki Kuri** ([commit 5a0afa4](https://github.com/Total-Random/pcg-next/commit/5a0afa47361421347051edc19e7dc547a8d5d909)).
