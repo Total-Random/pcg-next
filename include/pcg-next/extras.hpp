@@ -44,6 +44,7 @@
 #include <utility>
 #include <locale>
 #include <iterator>
+#include <bit>
 
 #ifdef __GNUC__
     #include <cxxabi.h>
@@ -287,88 +288,27 @@ inline itype unxorshift(itype x, bitcount_t bits, bitcount_t shift)
 template <typename itype>
 inline itype rotl(itype value, bitcount_t rot)
 {
-    constexpr bitcount_t bits = sizeof(itype) * 8;
-    constexpr bitcount_t mask = bits - 1;
-#if PCG_USE_ZEROCHECK_ROTATE_IDIOM
-    return rot ? (value << rot) | (value >> (bits - rot)) : value;
-#else
-    return (value << rot) | (value >> ((- rot) & mask));
-#endif
+    if constexpr (std::is_integral_v<itype> && std::is_unsigned_v<itype>) {
+        return std::rotl(value, rot);
+    } else {
+        constexpr bitcount_t bits = sizeof(itype) * 8;
+        constexpr bitcount_t mask = bits - 1;
+        return (value << rot) | (value >> ((- rot) & mask));
+    }
 }
 
 template <typename itype>
 inline itype rotr(itype value, bitcount_t rot)
 {
-    constexpr bitcount_t bits = sizeof(itype) * 8;
-    constexpr bitcount_t mask = bits - 1;
-#if PCG_USE_ZEROCHECK_ROTATE_IDIOM
-    return rot ? (value >> rot) | (value << (bits - rot)) : value;
-#else
-    return (value >> rot) | (value << ((- rot) & mask));
-#endif
+    if constexpr (std::is_integral_v<itype> && std::is_unsigned_v<itype>) {
+        return std::rotr(value, rot);
+    } else {
+        constexpr bitcount_t bits = sizeof(itype) * 8;
+        constexpr bitcount_t mask = bits - 1;
+        return (value >> rot) | (value << ((- rot) & mask));
+    }
 }
 
-/* Unfortunately, both Clang and GCC sometimes perform poorly when it comes
- * to properly recognizing idiomatic rotate code, so for we also provide
- * assembler directives (enabled with PCG_USE_INLINE_ASM).  Boo, hiss.
- * (I hope that these compilers get better so that this code can die.)
- *
- * These overloads will be preferred over the general template code above.
- */
-#if PCG_USE_INLINE_ASM && __GNUC__ && (__x86_64__  || __i386__)
-
-inline uint8_t rotr(uint8_t value, bitcount_t rot)
-{
-    asm ("rorb   %%cl, %0" : "=r" (value) : "0" (value), "c" (rot));
-    return value;
-}
-
-inline uint16_t rotr(uint16_t value, bitcount_t rot)
-{
-    asm ("rorw   %%cl, %0" : "=r" (value) : "0" (value), "c" (rot));
-    return value;
-}
-
-inline uint32_t rotr(uint32_t value, bitcount_t rot)
-{
-    asm ("rorl   %%cl, %0" : "=r" (value) : "0" (value), "c" (rot));
-    return value;
-}
-
-#if __x86_64__
-inline uint64_t rotr(uint64_t value, bitcount_t rot)
-{
-    asm ("rorq   %%cl, %0" : "=r" (value) : "0" (value), "c" (rot));
-    return value;
-}
-#endif // __x86_64__
-
-#elif defined(_MSC_VER)
-  // Use MSVC++ bit rotation intrinsics
-
-#pragma intrinsic(_rotr, _rotr64, _rotr8, _rotr16)
-
-inline uint8_t rotr(uint8_t value, bitcount_t rot)
-{
-    return _rotr8(value, rot);
-}
-
-inline uint16_t rotr(uint16_t value, bitcount_t rot)
-{
-    return _rotr16(value, rot);
-}
-
-inline uint32_t rotr(uint32_t value, bitcount_t rot)
-{
-    return _rotr(value, rot);
-}
-
-inline uint64_t rotr(uint64_t value, bitcount_t rot)
-{
-    return _rotr64(value, rot);
-}
-
-#endif // PCG_USE_INLINE_ASM
 
 
 /*

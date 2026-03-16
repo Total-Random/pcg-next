@@ -43,6 +43,7 @@
 #include <utility>
 #include <initializer_list>
 #include <type_traits>
+#include <bit>
 
 #if defined(_MSC_VER)  // Use MSVC++ intrinsics
 #include <intrin.h>
@@ -100,184 +101,42 @@ namespace pcg_extras {
  *      * trailingzeros         number of trailing zero bits
  */
 
-#if defined(__GNUC__)   // Any GNU-compatible compiler supporting C++11 has
-                        // some useful intrinsics we can use.
-                        // These bitcount_t casts are from SupercriticalSynthesizers/pcg-cpp PR fix-gcc-warnings
-
-inline bitcount_t flog2(uint32_t v)
+template <typename UInt>
+inline bitcount_t flog2(UInt v)
 {
-    return bitcount_t(31 - __builtin_clz(v));
+    if constexpr (std::is_integral_v<UInt> && std::is_unsigned_v<UInt>) {
+        return bitcount_t(std::bit_width(v) - 1);
+    } else {
+        // Fallback or custom logic if UInt is not a standard integral
+        // This part might be reached by __uint128_t if not covered by is_integral
+        // Actually __uint128_t is usually handled by is_integral in modern compilers
+        uint64_t high = uint64_t(v >> 64);
+        uint64_t low  = uint64_t(v);
+        return high ? 64 + flog2(high) : flog2(low);
+    }
 }
 
-inline bitcount_t trailingzeros(uint32_t v)
+template <typename UInt>
+inline bitcount_t trailingzeros(UInt v)
 {
-    return bitcount_t(__builtin_ctz(v));
+    if constexpr (std::is_integral_v<UInt> && std::is_unsigned_v<UInt>) {
+        return bitcount_t(std::countr_zero(v));
+    } else {
+        uint64_t high = uint64_t(v >> 64);
+        uint64_t low  = uint64_t(v);
+        return low ? trailingzeros(low) : trailingzeros(high) + 64;
+    }
 }
-
-inline bitcount_t flog2(uint64_t v)
-{
-#if UINT64_MAX == ULONG_MAX
-    return bitcount_t(63 - __builtin_clzl(v));
-#elif UINT64_MAX == ULLONG_MAX
-    return bitcount_t(63 - __builtin_clzll(v));
-#else
-    #error Cannot find a function for uint64_t
-#endif
-}
-
-inline bitcount_t trailingzeros(uint64_t v)
-{
-#if UINT64_MAX == ULONG_MAX
-    return bitcount_t(__builtin_ctzl(v));
-#elif UINT64_MAX == ULLONG_MAX
-    return bitcount_t(__builtin_ctzll(v));
-#else
-    #error Cannot find a function for uint64_t
-#endif
-}
-
-#elif defined(_MSC_VER)  // Use MSVC++ intrinsics
-
-#pragma intrinsic(_BitScanReverse, _BitScanForward)
-#if defined(_M_X64) || defined(_M_ARM) || defined(_M_ARM64)
-#pragma intrinsic(_BitScanReverse64, _BitScanForward64)
-#endif
-
-inline bitcount_t flog2(uint32_t v)
-{
-    unsigned long i;
-    _BitScanReverse(&i, v);
-    return bitcount_t(i);
-}
-
-inline bitcount_t trailingzeros(uint32_t v)
-{
-    unsigned long i;
-    _BitScanForward(&i, v);
-    return bitcount_t(i);
-}
-
-inline bitcount_t flog2(uint64_t v)
-{
-#if defined(_M_X64) || defined(_M_ARM) || defined(_M_ARM64)
-    unsigned long i;
-    _BitScanReverse64(&i, v);
-    return bitcount_t(i);
-#else
-    // 32-bit x86
-    uint32_t high = v >> 32;
-    uint32_t low  = uint32_t(v);
-    return high ? 32+flog2(high) : flog2(low);
-#endif
-}
-
-inline bitcount_t trailingzeros(uint64_t v)
-{
-#if defined(_M_X64) || defined(_M_ARM) || defined(_M_ARM64)
-    unsigned long i;
-    _BitScanForward64(&i, v);
-    return bitcount_t(i);
-#else
-    // 32-bit x86
-    uint32_t high = v >> 32;
-    uint32_t low  = uint32_t(v);
-    return low ? trailingzeros(low) : trailingzeros(high)+32;
-#endif
-}
-
-#else                   // Otherwise, we fall back to bit twiddling
-                        // implementations
-
-inline bitcount_t flog2(uint32_t v)
-{
-    // Based on code by Eric Cole and Mark Dickinson, which appears at
-    // https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
-
-    static const uint8_t multiplyDeBruijnBitPos[32] = {
-      0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30,
-      8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31
-    };
-
-    v |= v >> 1; // first round down to one less than a power of 2
-    v |= v >> 2;
-    v |= v >> 4;
-    v |= v >> 8;
-    v |= v >> 16;
-
-    return multiplyDeBruijnBitPos[(uint32_t)(v * 0x07C4ACDDU) >> 27];
-}
-
-inline bitcount_t trailingzeros(uint32_t v)
-{
-    static const uint8_t multiplyDeBruijnBitPos[32] = {
-      0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
-      31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
-    };
-
-    return multiplyDeBruijnBitPos[((uint32_t)((v & -v) * 0x077CB531U)) >> 27];
-}
-
-inline bitcount_t flog2(uint64_t v)
-{
-    uint32_t high = v >> 32;
-    uint32_t low  = uint32_t(v);
-
-    return high ? 32+flog2(high) : flog2(low);
-}
-
-inline bitcount_t trailingzeros(uint64_t v)
-{
-    uint32_t high = v >> 32;
-    uint32_t low  = uint32_t(v);
-
-    return low ? trailingzeros(low) : trailingzeros(high)+32;
-}
-
-#endif
-
-inline bitcount_t flog2(uint8_t v)
-{
-    return flog2(uint32_t(v));
-}
-
-inline bitcount_t flog2(uint16_t v)
-{
-    return flog2(uint32_t(v));
-}
-
-#if __SIZEOF_INT128__
-inline bitcount_t flog2(__uint128_t v)
-{
-    uint64_t high = uint64_t(v >> 64);
-    uint64_t low  = uint64_t(v);
-
-    return high ? 64+flog2(high) : flog2(low);
-}
-#endif
-
-inline bitcount_t trailingzeros(uint8_t v)
-{
-    return trailingzeros(uint32_t(v));
-}
-
-inline bitcount_t trailingzeros(uint16_t v)
-{
-    return trailingzeros(uint32_t(v));
-}
-
-#if __SIZEOF_INT128__
-inline bitcount_t trailingzeros(__uint128_t v)
-{
-    uint64_t high = uint64_t(v >> 64);
-    uint64_t low  = uint64_t(v);
-    return low ? trailingzeros(low) : trailingzeros(high)+64;
-}
-#endif
 
 template <typename UInt>
 inline bitcount_t clog2(UInt v)
 {
-    return flog2(v) + ((v & (-v)) != v);
+    if constexpr (std::is_integral_v<UInt> && std::is_unsigned_v<UInt>) {
+        if (v <= 1) return 0;
+        return bitcount_t(std::bit_width(v - 1));
+    } else {
+        return flog2(v) + ((v & (-v)) != v);
+    }
 }
 
 template <typename UInt>
@@ -539,15 +398,17 @@ public:
 template<typename U, typename V>
 bitcount_t flog2(const uint_x4<U,V>& v)
 {
-#if PCG_LITTLE_ENDIAN
-    for (uint8_t i = 4; i !=0; /* dec in loop */) {
-        --i;
-#else
-    for (uint8_t i = 0; i < 4; ++i) {
-#endif
-        if (v.wa[i] == 0)
-             continue;
-        return flog2(v.wa[i]) + uint_x4<U,V>::UINT_BITS*i;
+    if constexpr (std::endian::native == std::endian::little) {
+        for (uint8_t i = 4; i != 0; ) {
+            --i;
+            if (v.wa[i] != 0)
+                 return flog2(v.wa[i]) + uint_x4<U,V>::UINT_BITS*i;
+        }
+    } else {
+        for (uint8_t i = 0; i < 4; ++i) {
+            if (v.wa[i] != 0)
+                 return flog2(v.wa[i]) + uint_x4<U,V>::UINT_BITS*i;
+        }
     }
     abort();
 }
@@ -555,14 +416,17 @@ bitcount_t flog2(const uint_x4<U,V>& v)
 template<typename U, typename V>
 bitcount_t trailingzeros(const uint_x4<U,V>& v)
 {
-#if PCG_LITTLE_ENDIAN
-    for (uint8_t i = 0; i < 4; ++i) {
-#else
-    for (uint8_t i = 4; i !=0; /* dec in loop */) {
-        --i;
-#endif
-        if (v.wa[i] != 0)
-            return trailingzeros(v.wa[i]) + uint_x4<U,V>::UINT_BITS*i;
+    if constexpr (std::endian::native == std::endian::little) {
+        for (uint8_t i = 0; i < 4; ++i) {
+            if (v.wa[i] != 0)
+                return trailingzeros(v.wa[i]) + uint_x4<U,V>::UINT_BITS*i;
+        }
+    } else {
+        for (uint8_t i = 4; i != 0; ) {
+            --i;
+            if (v.wa[i] != 0)
+                return trailingzeros(v.wa[i]) + uint_x4<U,V>::UINT_BITS*i;
+        }
     }
     return uint_x4<U,V>::UINT_BITS*4;
 }

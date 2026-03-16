@@ -13,7 +13,7 @@ target_include_directories(pcg-cpp INTERFACE
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_compile_features(pcg-cpp INTERFACE cxx_std_11)
+target_compile_features(pcg-cpp INTERFACE cxx_std_20)
 
 
 

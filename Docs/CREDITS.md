@@ -67,12 +67,12 @@ This modernized fork of `pcg-cpp` by **Total-Random** integrates several critica
 
 ### 10. Modern CMake Build System
 
-- **Author:** [Total-Random](https://github.com/Total-Random)
+- **Author:** [SJkar](https://github.com/JkarVN)
 - **Description:** Comprehensive CMake integration with `find_package` support and automated testing via `ctest`.
 
 ### 11. MSVC Compatibility Fixes
 
-- **Author:** [Total-Random](https://github.com/Total-Random)
+- **Author:** [SJkar](https://github.com/JkarVN)
 - **Description:** Resolved several MSVC-specific issues:
   - `C2678` (ambiguous operator) in `set_stream` and `operator>>`.
   - `C4458` (declaration of 'is_mcg' hides class member).
