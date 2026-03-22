@@ -1,3 +1,5 @@
+> It has been merged as a `macro` into the original library (https://github.com/Total-Random/pcg-cpp)
+
 # pcg-next: Modern PCG Random Number Generation
 
 [![Maintenance Status](https://img.shields.io/badge/status-active-brightgreen.svg)](https://github.com/Total-Random/pcg-next)
